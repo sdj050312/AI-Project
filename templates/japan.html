@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>해외 부동산 AI 예측기</title>
+
+    <style>
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+            background: #f4f7f6;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 800px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        #result-img {
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid #ddd;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .info-box p {
+            font-size: 18px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🇯🇵 일본 부동산 가격 AI 시뮬레이터</h1>
+
+        <div class="controls">
+
+            <label>
+                예상 기준 금리:
+                <span id="rate-val">0.1</span>%
+            </label>
+
+            <input
+                type="range"
+                id="interest-range"
+                min="-0.5"
+                max="2.0"
+                step="0.1"
+                value="0.1"
+            >
+
+            <button onclick="updatePrediction()">
+                예측 실행
+            </button>
+
+        </div>
+
+        <div id="chart-area">
+
+            <img
+                id="result-img"
+                src=""
+                alt="예측 결과 그래프"
+            >
+
+        </div>
+
+        <div class="info-box">
+
+            <h2>예측 결과</h2>
+
+            <p id="price-text"></p>
+
+            <p id="change-text"></p>
+
+            <p id="percent-text"></p>
+
+            <p id="loss-text"></p>
+
+            <p id="accuracy-text"></p>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const range =
+            document.getElementById('interest-range');
+
+        const rateVal =
+            document.getElementById('rate-val');
+
+        // 슬라이더 움직일 때 숫자 변경
+        range.oninput = function () {
+
+            rateVal.innerHTML = this.value;
+        }
+
+        // 예측 함수
+        async function updatePrediction() {
+
+            const response = await fetch('/predict', {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    interest: range.value
+                })
+
+            });
+
+            const data = await response.json();
+
+            // 그래프 출력
+            document.getElementById('result-img').src =
+                'data:image/png;base64,' + data.image;
+
+            // 값 출력
+            document.getElementById('price-text').innerText =
+                `2050년 예상 지수: ${data.final_price}`;
+
+            document.getElementById('change-text').innerText =
+                `상승량: ${data.change}`;
+
+            document.getElementById('percent-text').innerText =
+                `상승률: ${data.change_percent}%`;
+
+            document.getElementById('loss-text').innerText =
+                `손실함수(Loss): ${data.loss}`;
+
+            document.getElementById('accuracy-text').innerText =
+                `정확도: ${data.accuracy}%`;
+        }
+
+        // 처음 실행
+        updatePrediction();
+
+    </script>
+
+</body>
+</html>
