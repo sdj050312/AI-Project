@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해외 부동산 AI 시세예측</title>
+    <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet" href="./static/index.css">
+    <link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>해외 투자해서 부자 되기 🏠</h1>
+    </div>
+
+    <div class="content">
+        <h1>주식 가격 예측해서 부자되기 📈</h1>
+        <a class ="stock-content" href="/chart">
+            <div class="chart-wrapper">
+        <svg viewBox="0 0 500 200" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00ffad" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#00ffad" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            
+            <path class="chart-area" d="M 0 180 Q 125 150 250 100 T 500 40 L 500 200 L 0 200 Z" />
+            
+            <path class="chart-line" d="M 0 180 Q 125 150 250 100 T 500 40" />
+        </svg>
+    </div>
+        </a>
+    </div>
+
+    <div class="content">
+        <h1>부동산 가격 예측해서 부자되기 🏠</h1>
+        <div class = "area-content">
+        <ul>
+            <li><a href="/japan">일본</a></li>
+            <li><a href="/korea">한국</a></li>
+            <li><a href="/china">미국</a></li>
+        </ul>
+        </div>
+    </div>
+
+    
+    
+    </div>
+
+</body>
+</html>
