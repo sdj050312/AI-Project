@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>미국 경제 및 금리 예측 대시보드</title>
+    <style>
+        body { margin: 0; font-family: 'Malgun Gothic', sans-serif; display: flex; height: 100vh; background: #f4f6f9; }
+        .nav-sidebar { width: 80px; background: #212529; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 15px; }
+        .nav-sidebar a { color: #adb5bd; text-decoration: none; font-size: 14px; font-weight: bold; padding: 10px; border-radius: 5px; }
+        .nav-sidebar a.active { color: white; background: #007bff; }
+        .main-content { flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .header { border-bottom: 2px solid #dee2e6; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 국기 마크 선택기 스타일 */
+        .country-selector { display: flex; gap: 15px; background: #ffffff; padding: 5px 15px; border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .flag-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 20px; text-decoration: none; }
+        .flag-mark { font-size: 22px; filter: grayscale(50%); transition: all 0.2s; }
+        .country-name { font-size: 12px; font-weight: bold; color: #777; }
+        .flag-btn:hover .flag-mark { filter: grayscale(0%); transform: scale(1.1); }
+        .flag-btn.active { background-color: #f1f5f9; }
+        .flag-btn.active .flag-mark { filter: grayscale(0%); }
+        .flag-btn.active .country-name { color: #1e293b; }
+
+        .control-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .stat-card h4 { margin: 0 0 10px 0; color: #6c757d; font-size: 14px; }
+        .stat-card div { font-size: 22px; font-weight: bold; color: #212529; }
+        .chart-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+        #chart-img { max-width: 100%; height: auto; border-radius: 5px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-sidebar">
+        <a href="/">홈</a>
+        <a href="/korea">한국</a>
+        <a href="/japan">일본</a>
+        <a href="/usa" class="active">미국</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>🇺🇸 미국 부동산 금리 시뮬레이션</h2>
+            
+            <div class="country-selector">
+                <a href="/korea" class="flag-btn"><span class="flag-mark">🇰🇷</span><span class="country-name">KOREA</span></a>
+                <a href="/japan" class="flag-btn"><span class="flag-mark">🇯🇵</span><span class="country-name">JAPAN</span></a>
+                <a href="/usa" class="flag-btn active"><span class="flag-mark">🇺🇸</span><span class="country-name">USA</span></a>
+            </div>
+        </div>
+
+        <div class="control-card">
+            <label for="interest-input" style="font-weight: bold; display: block; margin-bottom: 10px;">
+                시뮬레이션 설정 금리: <span id="interest-val" style="color: #007bff; font-size: 18px;">5.00</span>%
+            </label>
+            <input type="range" id="interest-input" min="0.0" max="15.0" step="0.25" value="5.00" style="width: 100%;">
+        </div>
+
+        <div class="grid-container">
+            <div class="stat-card"><h4>최종 예측 가치</h4><div id="res-final">-</div></div>
+            <div class="stat-card"><h4>변동 수치</h4><div id="res-change">-</div></div>
+            <div class="stat-card"><h4>예상 변동률</h4><div id="res-percent">-</div></div>
+            <div class="stat-card"><h4>모델 검증 정확도</h4><div id="res-accuracy">-</div></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>금리 변동 시나리오 경제 분석 차트</h3>
+            <div id="loading" style="display: none; padding: 100px; font-weight: bold; color: #6c757d; font-size: 16px;">
+                ⚙️ LightGBM 예측 인공지능 모델 코어 연산 중...
+            </div>
+            <img id="chart-img" src="" alt="시뮬레이션 그래프 차트" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        const interestInput = document.getElementById('interest-input');
+        const interestVal = document.getElementById('interest-val');
+        const chartImg = document.getElementById('chart-img');
+        const loadingDiv = document.getElementById('loading');
+
+        const resFinal = document.getElementById('res-final');
+        const resChange = document.getElementById('res-change');
+        const resPercent = document.getElementById('res-percent');
+        const resAccuracy = document.getElementById('res-accuracy');
+
+        function updateDashboard() {
+            const currentRate = interestInput.value;
+            interestVal.textContent = parseFloat(currentRate).toFixed(2);
+
+            loadingDiv.style.display = 'block';
+            chartImg.style.display = 'none';
+
+            // 🎯 미국 전용 라우터 주소(/usa/predict)로 요청 통일
+            fetch('/usa/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    interest: parseFloat(currentRate)
+                })
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'API 호출 중 오류가 발생했습니다.');
+                }
+                return data;
+            })
+            .then(data => {
+                loadingDiv.style.display = 'none';
+
+                if (data.status !== 'success') {
+                    alert(data.message);
+                    return;
+                }
+
+                // 1. 수치 데이터 바인딩 및 콤마 포맷팅 
+                resFinal.textContent = Number(data.final_price).toLocaleString(undefined, {minimumFractionDigits: 2});
+                
+                // 변동 수치 부호 판별 및 색상 매핑
+                const changeVal = parseFloat(data.change || 0);
+                resChange.textContent = (changeVal >= 0 ? '▲ ' : '▼ ') + Math.abs(changeVal).toFixed(2);
+                resChange.style.color = changeVal >= 0 ? '#dc3545' : '#0d6efd';
+
+                // 예상 변동률 처리
+                const percent = parseFloat(data.change_percent || 0);
+                resPercent.textContent = percent.toFixed(2) + "%";
+                resPercent.style.color = percent >= 0 ? '#dc3545' : '#0d6efd';
+
+                resAccuracy.textContent = (data.accuracy || 0).toFixed(2) + "%";
+
+                // 2. 백엔드에서 생성해준 이미지 차트 렌더링
+                if (data.image) {
+                    chartImg.src = "data:image/png;base64," + data.image;
+                    chartImg.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                console.error(error);
+                alert("서버 오류 연동 실패: " + error.message);
+            });
+        }
+
+        // 이벤트 리스너 지정 (트래픽 과부하 방지 및 슬라이더 텍스트 실시간 동화)
+        interestInput.addEventListener('change', updateDashboard);
+        interestInput.addEventListener('input', function() {
+            interestVal.textContent = parseFloat(this.value).toFixed(2);
+        });
+
+        // 페이지 진입 시 최초 1회 실행
+        window.addEventListener('DOMContentLoaded', updateDashboard);
+    </script>
+</body>
+</html>

@@ -196,3 +196,101 @@ body{
     fill: url(#chart-gradient); /* 위에서 정의한 그라데이션 아이디 연결 */
     stroke: none;
 }
+
+.scatter-banner {
+    display: flex;
+   
+    justify-content: center ;
+    align-items: center;
+    background: #1c232a; /* 배경과 동일하게 설정하여 일체감 유지 */
+    padding: 40px 20px;
+    margin-top: 40px;
+}
+
+.scatter-banner .banner-text {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    color: #4af094; 
+    padding: 20px;
+    width: 50%;
+    text-decoration: none;
+    background-color: #4b4752;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: solid 1px #4af094;
+    padding: 5px;
+    border-radius: 10px;
+}
+.map-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: #1c232a;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .world-map {
+        width: 80%;
+        height: auto;
+        max-height: 400px;
+    }
+
+    /* 기본 대륙 및 바다 배경 설정 */
+    .clickable-country {
+        fill: #244a33;
+        stroke: #180d0d;
+        stroke-width: 1.5;
+        cursor: pointer;
+        transition: fill 0.3s ease, transform 0.2s ease;
+    }
+
+    /* 시뮬레이션 지원 국가들의 기본 하이라이트 색상 */
+    .clickable-country[data-id="2"] { fill: #a2c2e8; } /* 한국 */
+    .clickable-country[data-id="3"] { fill: #fbc2c4; } /* 미국 */
+    .clickable-country[data-id="1"] { fill: #ffe194; } /* 일본 */
+
+    /* 마우스를 올렸을 때(Hover) 반응 */
+    .clickable-country:hover {
+        filter: brightness(0.85);
+        transform: scale(1.02);
+    }
+
+    /* 현재 선택된 국가 표시 */
+    .clickable-country.active {
+        fill: #e2914a !important; /* 선택되면 강렬한 파란색으로 변경 */
+        stroke: #2a609d;
+        stroke-width: 20;;
+    }
+
+    .map-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #4af094;
+    }
+    
+    .map-hint {
+        font-size: 13px;
+        color: #4af094;
+        margin-top: -10px;
+        margin-bottom: 15px;
+    }
+    .invest {
+    border: solid 1px #4af094;
+    display: block;
+    justify-content: center;
+    align-items: center;
+        text-decoration: none;
+    width: 100%;
+background: #464557;
+border-radius: 10px;
+
+
+} 
+.invest-content {
+    color: #4af094;
+}

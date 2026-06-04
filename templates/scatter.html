@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scatter RF</title>
+</head>
+
+    <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet"
+href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet"
+href="{{ url_for('static', filename='chart.css') }}">
+<style>
+      body {
+            font-family: Arial;
+            margin: 20px;
+
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        th, td {
+            
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #0f632b;
+            color: white;
+        }
+
+    
+</style>
+
+<body>
+
+<h2>📊 RandomForest Scatter</h2>
+<div class="chart-img">
+<img src="data:image/png;base64,{{ image }}" style="width:700px;">
+</div>
+<h3>Data Sample</h3>
+<table>
+    <tr>
+        <th>Index</th>
+
+        {% for j in range(20) %}
+        <th>F{{ j+1 }}</th>
+        {% endfor %}
+    </tr>
+
+    {% for i in range(20) %}
+    <tr>
+        <td>{{ i }}</td>
+
+        {% for j in range(20) %}
+        <td>{{ "%.4f"|format(X[i][j]) }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
