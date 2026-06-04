@@ -32,11 +32,8 @@ def index():
 #scatter 페이지 ------------------------------
 @app.route("/scatter")
 def scatter():
-
     ticker = request.args.get("ticker", "005930.KS")
-
     data = make_scatter(ticker)
-
     return render_template(
         "scatter.html",
         image=data["image"],
@@ -44,14 +41,13 @@ def scatter():
         pred=data["pred"],
         X=data["X"]   # 🔥 이거 하나만 추가
     )
+
 # ======================
 # 차트 페이지
 # ======================
 @app.route('/chart')
 def chart():
-
     ticker = request.args.get("ticker", "005930.KS")
-
     try:
         data = make_chart(ticker)
     except Exception as e:
@@ -73,6 +69,7 @@ def chart():
         live_price=data.get("live_price", 0),
         ticker=data.get("ticker", ticker)
     )
+
 # ======================
 # API
 # ======================
@@ -125,5 +122,10 @@ def predict():
         return jsonify({"status": "error", "message": str(e)}), 400
 
 
+# ======================
+# 실행부 (클라우드타입 배포 설정 반영)
+# ======================
 if __name__ == '__main__':
-    app.run(debug=True)
+    # host='0.0.0.0' 설정을 해야 클라우드타입 외부 환경에서 접근할 수 있습니다.
+    # port=5000은 클라우드타입 서비스 설정 항목의 포트 번호와 동일해야 합니다.
+    app.run(host='0.0.0.0', port=5000, debug=True)
