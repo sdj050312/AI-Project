@@ -1,13 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chart</title>
+    <title>Stock AI Comparison</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='chart.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #2e2626;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+                        background: #0f632b;
+            color: white;
+        }
+
+        .sell-row {
+            background-color: #ff4d4d !important;
+            color: white;
+        }
+
+        .buy-row {
+            background-color: #4dff88 !important;
+        }
+
+        .hold-row {
+            background-color: #ffd24d !important;
+        }
+
+        .box {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Stock Prediction Chart</h2>
+<h2>📊 Stock AI Comparison</h2>
 
-<img src="data:image/png;base64,{{ chart }}" style="width:80%;" />
+<!-- 📌 그래프 -->
+<div class="chart-img">
+    {% if image %}
+        <img src="data:image/png;base64,{{ image }}" style="width:100%; max-width:1000px;">
+    {% endif %}
+</div>
 
+<hr>
+
+<!-- 📌 Summary -->
+<h3>Summary</h3>
+
+<table>
+    <tr>
+        <th>Live Price</th>
+        <th>Actual Last</th>
+        <th>Pred Last</th>
+        <th>RMSE</th>
+        <th>R2</th>
+    </tr>
+
+    <tr>
+        <td>{{ live_price }}</td>
+        <td>{{ actual_last }}</td>
+        <td>{{ pred_last }}</td>
+        <td>{{ rmse }}</td>
+        <td>{{ r2 }}</td>
+    </tr>
+</table>
+
+<hr>
+
+<!-- 📌 데이터 -->
+<h3>Actual vs Prediction</h3>
+
+<table>
+    <tr>
+        <th>Index</th>
+        <th>Actual</th>
+        <th>Prediction</th>
+        <th>Error</th>
+    </tr>
+
+    {% for i in range(actual_list|length) %}
+    <tr>
+        <td>{{ i }}</td>
+        <td>{{ (actual_list[i] * 100)|round(3) }}%</td>
+        <td>{{ (pred_list[i] * 100)|round(3) }}%</td>
+        <td>{{ ((actual_list[i] - pred_list[i]) * 100)|round(3) }}%</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<!-- 📌 Trading UI -->
+<h3>📊 Simple Trading Strategy</h3>
+
+<div class="box">
+    <p>💰 Live Price: {{ live_price }}</p>
+
+    <p id="signal"></p>
+    <p id="sellPrice"></p>
+    <p id="profitRate"></p>
+</div>
+
+<script>
+    window.PRED_LIST = {{ pred_list | tojson }};
+    window.LIVE_PRICE = {{ live_price }};
+</script>
+
+<script src="{{ url_for('static', filename='chart.js') }}"></script>
 </body>
 </html>

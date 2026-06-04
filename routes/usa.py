@@ -8,28 +8,28 @@ import numpy as np
 from flask import Blueprint, render_template, request, jsonify
 from services.predict import make_prediction
 
-korea_bp = Blueprint("korea", __name__)
+usa_bp = Blueprint("usa", __name__)
 
 # 1. 화면 렌더링
-@korea_bp.route('/korea')
-def korea():
-    return render_template("korea.html")
+@usa_bp.route('/usa')
+def usa():
+    return render_template("usa.html")
 
-# 2. 한국 전용 예측 API
-@korea_bp.route('/korea/predict', methods=['POST'])
-def korea_predict():
+# 2. 미국 전용 예측 API (japan_predict와 완벽 싱크로율 100%)
+@usa_bp.route('/usa/predict', methods=['POST'])
+def usa_predict():
     data = request.get_json() or {}
-    interest_rate = float(data.get('interest', 3.5))
+    interest_rate = float(data.get('interest', 5.00))  # 미국 기본 금리 예시 (5.0%)
 
     try:
-        # 한국 ID인 2번을 고정으로 전달
-        result = make_prediction(target_id=2, interest_rate=interest_rate)
+        # 🔥 미국 ID인 3번을 고정으로 전달하여 매크로 알고리즘 가동
+        result = make_prediction(target_id=3, interest_rate=interest_rate)
 
         actual_prices = result["prices"]
         predicted_prices = result["prediction"]
 
         # 📊 [막대 그래프 최적화]
-        # 과거 데이터를 다 그리면 막대가 너무 얇아지므로, 최근 과거 15개 + 미래 예측 30개를 결합
+        # 전체 과거 데이터를 다 그리면 막대가 너무 얇아지므로, 최근 과거 15개 + 미래 예측 30개를 결합
         past_view_count = 15
         recent_actual = actual_prices[-past_view_count:]
         
@@ -56,8 +56,8 @@ def korea_predict():
             label="Future Simulation (30 Steps)"
         )
 
-        # 그래프 디자인 및 가독성 세팅
-        ax.set_title(f"Korea Economic Simulation (Interest Rate: {interest_rate}%)", fontsize=12, fontweight='bold')
+        # 그래프 디자인 및 가독성 세팅 (미국 맞춤 타이틀)
+        ax.set_title(f"USA Economic Simulation (Interest Rate: {interest_rate}%)", fontsize=12, fontweight='bold')
         ax.set_ylabel("Market Price / Index", fontsize=11)
         
         # X축 눈금 레이블 정의 (과거 시점은 -15, 미래 시점은 +1 형태로 표현)
@@ -76,13 +76,14 @@ def korea_predict():
         ax.legend(loc="upper left")
         ax.grid(axis='y', linestyle='--', alpha=0.5)
 
-        # 이미지 인코딩 및 변환
+        # 💾 이미지 인코딩 및 변환 (메모리 버퍼형 스냅샷 추출)
         buf = io.BytesIO()
         fig.savefig(buf, format="png", bbox_inches='tight')
         buf.seek(0)
         img = base64.b64encode(buf.getvalue()).decode("utf-8")
         plt.close(fig)
 
+        # japan.py와 완벽히 일치하는 리턴 JSON 키값 포맷팅
         return jsonify({
             "status": "success",
             "image": img,

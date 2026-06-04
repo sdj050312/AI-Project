@@ -36,18 +36,26 @@ href="{{ url_for('static', filename='style.css') }}">
 
     <div class="content">
         <h1>부동산 가격 예측해서 부자되기 🏠</h1>
-        <div class = "area-content">
-        <ul>
-            <li><a href="/japan">일본</a></li>
-            <li><a href="/korea">한국</a></li>
-            <li><a href="/china">미국</a></li>
-        </ul>
-        </div>
+        
+        <div class="map-container">
+            
+            <a href="/japan" class="invest">
+    <div class="map-title">🌍 글로벌 매크로 시뮬레이션 지도</div>
+    <div class="map-hint">분석을 원하는 국가(한국, 미국, 일본)를 클릭하세요.</div>
+    </a>
+    <!-- 간소화된 인터랙티브 SVG 지형도 -->
+   
     </div>
 
-    
-    
+     <h1>금리 스프레드와 자금 흐름 리스크 분석 📊</h1>
+       
+    <div class="scatter-banner">
+        <a class="banner-text" href="/scatter">
+            <h3>데이터 트렌드 분석</h3>
+            <p>한·미·일 금리 스프레드와 자금 흐름 리스크를<br>산점도로 직관적으로 모니터링하세요.</p>
+        </a>
     </div>
+
 
 </body>
 </html>

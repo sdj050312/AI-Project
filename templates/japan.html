@@ -1,169 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>해외 부동산 AI 예측기</title>
-
+    <meta charset="UTF-8">
+    <title>일본 경제 및 금리 예측 대시보드</title>
     <style>
-
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 50px;
-            background: #f4f7f6;
-        }
-
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 800px;
-        }
-
-        .controls {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        #result-img {
-            width: 100%;
-            max-width: 700px;
-            border: 1px solid #ddd;
-        }
-
-        .info-box {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f0f0f0;
-            border-radius: 10px;
-        }
-
-        .info-box p {
-            font-size: 18px;
-        }
-
+        body { margin: 0; font-family: 'Malgun Gothic', sans-serif; display: flex; height: 100vh; background: #f4f6f9; }
+        .nav-sidebar { width: 80px; background: #212529; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 15px; }
+        .nav-sidebar a { color: #adb5bd; text-decoration: none; font-size: 14px; font-weight: bold; padding: 10px; border-radius: 5px; }
+        .nav-sidebar a.active { color: white; background: #007bff; }
+        .main-content { flex: 1; padding: 30px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .header { border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .control-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .stat-card h4 { margin: 0 0 10px 0; color: #6c757d; font-size: 14px; }
+        .stat-card div { font-size: 22px; font-weight: bold; color: #212529; }
+        .chart-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+        #chart-img { max-width: 100%; height: auto; border-radius: 5px; }
     </style>
-
 </head>
-
 <body>
 
-    <div class="container">
+    <div class="nav-sidebar">
+        <a href="/">홈</a>
+        <a href="/korea">한국</a>
+        <a href="/japan" class="active">일본</a>
+        <a href="/usa">미국</a>
+    </div>
 
-        <h1>🇯🇵 일본 부동산 가격 AI 시뮬레이터</h1>
+    <div class="main-content">
+        <div class="header">
+            <h2>🇯🇵 일본 부동산 & 금리 시뮬레이션</h2>
+        </div>
 
-        <div class="controls">
-
-            <label>
-                예상 기준 금리:
-                <span id="rate-val">0.1</span>%
+        <div class="control-card">
+            <label for="interest-input" style="font-weight: bold; display: block; margin-bottom: 10px;">
+                시뮬레이션 설정 금리: <span id="interest-val" style="color: #007bff; font-size: 18px;">0.25</span>%
             </label>
-
-            <input
-                type="range"
-                id="interest-range"
-                min="-0.5"
-                max="2.0"
-                step="0.1"
-                value="0.1"
-            >
-
-            <button onclick="updatePrediction()">
-                예측 실행
-            </button>
-
+            <input type="range" id="interest-input" min="-1.0" max="5.0" step="0.05" value="0.25" style="width: 100%;">
         </div>
 
-        <div id="chart-area">
-
-            <img
-                id="result-img"
-                src=""
-                alt="예측 결과 그래프"
-            >
-
+        <div class="grid-container">
+            <div class="stat-card"><h4>최종 예측 가치</h4><div id="res-final">-</div></div>
+            <div class="stat-card"><h4>변동 수치</h4><div id="res-change">-</div></div>
+            <div class="stat-card"><h4>예상 변동률</h4><div id="res-percent">-</div></div>
+            <div class="stat-card"><h4>모델 검증 정확도</h4><div id="res-accuracy">-</div></div>
         </div>
 
-        <div class="info-box">
-
-            <h2>예측 결과</h2>
-
-            <p id="price-text"></p>
-
-            <p id="change-text"></p>
-
-            <p id="percent-text"></p>
-
-            <p id="loss-text"></p>
-
-            <p id="accuracy-text"></p>
-
+        <div class="chart-card">
+            <h3>금리 변동 시나리오 경제 분석 차트</h3>
+            <div id="loading" style="display: none; padding: 50px; font-weight: bold; color: #6c757d;">예측 모델 연산 중...</div>
+            <img id="chart-img" src="" alt="시뮬레이션 그래프 차트">
         </div>
-
     </div>
 
     <script>
+        const slider = document.getElementById('interest-input');
+        const valText = document.getElementById('interest-val');
+        const loading = document.getElementById('loading');
+        const chartImg = document.getElementById('chart-img');
 
-        const range =
-            document.getElementById('interest-range');
+        slider.addEventListener('input', (e) => {
+            valText.innerText = parseFloat(e.target.value).toFixed(2);
+        });
 
-        const rateVal =
-            document.getElementById('rate-val');
+        slider.addEventListener('change', sendPredictionRequest);
 
-        // 슬라이더 움직일 때 숫자 변경
-        range.oninput = function () {
+        function sendPredictionRequest() {
+            loading.style.display = 'block';
+            chartImg.style.display = 'none';
 
-            rateVal.innerHTML = this.value;
-        }
-
-        // 예측 함수
-        async function updatePrediction() {
-
-            const response = await fetch('/predict', {
-
+            // 🔥 일본 전용 라우터 주소로 요청 전달
+            fetch('/japan/predict', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interest: slider.value })
+            })
+            .then(res => res.json())
+            .then(res => {
+                loading.style.display = 'none';
+                chartImg.style.display = 'inline-block';
 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-
-                body: JSON.stringify({
-                    interest: range.value
-                })
-
+                if (res.status === 'success') {
+                    chartImg.src = "data:image/png;base64," + res.image;
+                    document.getElementById('res-final').innerText = res.final_price.toLocaleString();
+                    document.getElementById('res-change').innerText = res.change.toLocaleString();
+                    
+                    const pCard = document.getElementById('res-percent');
+                    pCard.innerText = res.change_percent + "%";
+                    pCard.style.color = res.change_percent >= 0 ? '#dc3545' : '#007bff';
+                    
+                    document.getElementById('res-accuracy').innerText = res.accuracy + "%";
+                } else {
+                    alert("예측 연산 실패: " + res.message);
+                }
+            })
+            .catch(err => {
+                loading.style.display = 'none';
+                console.error(err);
             });
-
-            const data = await response.json();
-
-            // 그래프 출력
-            document.getElementById('result-img').src =
-                'data:image/png;base64,' + data.image;
-
-            // 값 출력
-            document.getElementById('price-text').innerText =
-                `2050년 예상 지수: ${data.final_price}`;
-
-            document.getElementById('change-text').innerText =
-                `상승량: ${data.change}`;
-
-            document.getElementById('percent-text').innerText =
-                `상승률: ${data.change_percent}%`;
-
-            document.getElementById('loss-text').innerText =
-                `손실함수(Loss): ${data.loss}`;
-
-            document.getElementById('accuracy-text').innerText =
-                `정확도: ${data.accuracy}%`;
         }
 
-        // 처음 실행
-        updatePrediction();
-
+        window.onload = sendPredictionRequest;
     </script>
-
 </body>
 </html>
